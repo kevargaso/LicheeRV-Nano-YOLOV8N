@@ -1,4 +1,9 @@
 # LicheeRV-Nano-YOLOV8N
+## Team Members
+
+- Kevin Vargas
+- Christian Martinez
+- Jesus Lopez
 
 <p align="center">
   <img src="images/funcionamiento.gif" alt="Real-time Object Detection in Action" width="75%">
@@ -780,4 +785,3 @@ Contributions are welcome! Areas for improvement:
 - [Media Source Extensions (MSE) API](https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API)
 
 ---
-
