@@ -9,6 +9,7 @@ An embedded real-time object detection and tracking system running on [LicheeRV 
 **Based on:**
 - [Cvitek TDL SDK](https://github.com/milkv-duo/cvitek-tdl-sdk-sg200x)
 - [SPCOM Build System](https://github.com/scpcom/LicheeRV-Nano-Build)
+- [Yolov8n Object Detection](https://milkv.io/docs/duo/application-development/tdl-sdk/tdl-sdk-yolov8)
 
 ---
 
@@ -27,7 +28,6 @@ An embedded real-time object detection and tracking system running on [LicheeRV 
 - [Code Examples](#code-examples)
 - [Performance Metrics](#performance-metrics)
 - [Configuration](#configuration)
-- [Troubleshooting](#troubleshooting)
 - [Build from Source](#build-from-source)
 
 ---
@@ -49,7 +49,7 @@ An embedded real-time object detection and tracking system running on [LicheeRV 
 ### System Block Diagram
 
 <p align="center">
-  <img src="images/Diagrama de Arquitectura (Bloques).jpeg" alt="Architecture Block Diagram" width="90%">
+  <img src="images/funcionamiento.gif" alt="Architecture Block Diagram" width="90%">
 </p>
 
 The system implements a dual-channel video pipeline:
@@ -638,142 +638,6 @@ Supported sensors: GC4653, IMX327, SC2336, SC4336 (check TDL SDK docs)
 
 ---
 
-## Troubleshooting
-
-### Problem: Application crashes with "CVI_VB_Init failed: 0xa0038004"
-
-**Cause:** Insufficient memory for VB pools
-
-**Solution:**
-1. Check DRAM size: `cat /proc/meminfo | grep MemTotal`
-2. Reduce VB pool block counts in `init_vb_pool()`:
-   ```c
-   stVbConfig.astCommPool[VB_POOL_VI].u32BlkCnt = 2;    // Was 3
-   stVbConfig.astCommPool[VB_POOL_VENC].u32BlkCnt = 3;  // Was 4
-   ```
-3. Reduce sensor resolution in `sensor_cfg.ini`
-
----
-
-### Problem: Stream freezes after 30-60 seconds
-
-**Cause:** Ring buffer overflow (client too slow)
-
-**Solution:**
-1. Check network bandwidth: `iperf3 -s` on device, test from client
-2. Reduce encoder bitrate:
-   ```c
-   stVencChnAttr.stRcAttr.stH264Vbr.u32MaxBitrate = 1500;  // Was 2500
-   ```
-3. Increase buffer size: `#define BUFFER_SIZE 120`
-4. Use wired Ethernet instead of WiFi
-
----
-
-### Problem: No detections appear / All detections filtered out
-
-**Cause:** Model threshold too high or wrong model class
-
-**Solution:**
-1. Lower detection threshold:
-   ```c
-   CVI_TDL_SetModelThreshold(tdl_handle, model_id, 0.3);  // Was 0.5
-   ```
-2. Verify model supports PERSON class:
-   ```bash
-   # Check model metadata
-   cvi_model_info yolov8n_cv181x_int8_sym.cvimodel
-   ```
-3. Disable person-only filter temporarily (comment out `filter_persons()` call)
-
----
-
-### Problem: CivetWeb fails to start "Address already in use"
-
-**Cause:** Port 8080 already occupied
-
-**Solution:**
-1. Check existing processes:
-   ```bash
-   netstat -tulpn | grep 8080
-   kill <PID>
-   ```
-2. Change server port in code:
-   ```c
-   const char *options[] = {"listening_ports", "8081", NULL};
-   ```
-
----
-
-### Problem: Model file not found or fails to load
-
-**Cause:** Incorrect path or incompatible model format
-
-**Solution:**
-1. Verify file exists:
-   ```bash
-   ls -lh /mnt/data/*.cvimodel
-   ```
-2. Check model compatibility:
-   - Must be INT8 quantized for NPU
-   - Must match chip architecture (CV181X vs CV180X)
-   - Input dimensions must match `TDL_INPUT_WIDTH x TDL_INPUT_HEIGHT`
-3. Re-convert model using TPU-MLIR toolkit
-
----
-
-### Problem: High CPU usage (>50%)
-
-**Cause:** Software fallback instead of hardware acceleration
-
-**Solution:**
-1. Verify NPU is active:
-   ```bash
-   cat /proc/cvitek/cvi_sys | grep tpu
-   ```
-2. Check VB pool attachment:
-   - Ensure `CVI_VPSS_AttachVbPool()` succeeds for both channels
-3. Disable unnecessary frame copying:
-   - Use `CVI_VPSS_GetChnFrame()` without memcpy when possible
-
----
-
-### Problem: Tracking IDs jump/flicker rapidly
-
-**Cause:** Low IoU threshold or insufficient track confirmation
-
-**Solution:**
-1. Increase `MIN_TRACK_HITS`:
-   ```c
-   #define MIN_TRACK_HITS  5  // Was 3
-   ```
-2. Adjust IoU threshold in `update_person_tracks()`:
-   ```c
-   if (iou > 0.4 && distance < 100) {  // Was 0.3
-   ```
-3. Decrease `MAX_TRACK_MISS` to remove stale tracks faster
-
----
-
-### Problem: Build fails with "libcivetweb.so: cannot find"
-
-**Cause:** CivetWeb not built in buildroot
-
-**Solution:**
-1. Add CivetWeb to buildroot config:
-   ```bash
-   cd buildroot
-   make menuconfig
-   # Target packages → Networking → civetweb → Enable
-   make
-   ```
-2. Or statically link:
-   ```make
-   LDFLAGS += /path/to/libcivetweb.a
-   ```
-
----
-
 ## Build from Source
 
 ### Full Build System Setup
@@ -917,5 +781,3 @@ Contributions are welcome! Areas for improvement:
 
 ---
 
-**Developed by:** [Your Name/Team]
-**Last Updated:** December 11, 2025
