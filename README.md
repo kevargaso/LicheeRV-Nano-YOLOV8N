@@ -42,6 +42,21 @@ Initially, we boot an embedded Linux image with the necessary files:
       * **Supported Models:** MobileDetV2 (person, vehicle, pets, coco80), YOLOv3, and YOLOX.
       * **Filtering:** Hardcoded to filter for **PERSONS** (`CVI_TDL_DET_TYPE_PERSON`) in this sample.
       * **Threshold:** Configurable via command-line argument (default: 0.5).
+
+
+- **[COCO trainig data set](https://cocodataset.org/#home)**: It´s the brain used on the NPU to identify:
+
+    - Object segmentation
+    - Recognition in context
+    - Superpixel stuff segmentation
+    - 330K images (>200K labeled)
+    - 1.5 million object instances
+    - 80 object categories
+    - 91 stuff categories
+    - 5 captions per image
+    - 250,000 people with keypoints
+
+
 ## 1. Hardware Input
 
 The entry point is the **GC4653** sensor. The system begins by parsing the `sensor_cfg.ini` file to dynamically determine the sensor's resolution capabilities.
