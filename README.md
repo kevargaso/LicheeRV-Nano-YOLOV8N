@@ -3,7 +3,7 @@
 This is an embedded prototype of Yolo Object Tracking on a [LicheeRV Nano](https://wiki.sipeed.com/hardware/en/lichee/RV_Nano/1_intro.html), based on these main GitHub repositories:
 
 - [Cvitek](https://github.com/milkv-duo/cvitek-tdl-sdk-sg200x)
-- [LicheeRV Official Repo](https://github.com/scpcom/LicheeRV-Nano-Build)
+- [SPCOM](https://github.com/scpcom/LicheeRV-Nano-Build)
 
 # Objective
 
