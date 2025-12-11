@@ -1,7 +1,7 @@
 # LicheeRV-Nano-YOLOV8N
 
 <p align="center">
-  <img src="images/interface.jpg" alt="Real-time Object Detection Interface" width="75%">
+  <img src="images/funcionamiento.gif" alt="Real-time Object Detection in Action" width="75%">
 </p>
 
 An embedded real-time object detection and tracking system running on [LicheeRV Nano](https://wiki.sipeed.com/hardware/en/lichee/RV_Nano/1_intro.html), leveraging the SG2002 NPU for YOLOv8 inference and delivering live video streams via HTTP/MSE.
@@ -49,7 +49,7 @@ An embedded real-time object detection and tracking system running on [LicheeRV 
 ### System Block Diagram
 
 <p align="center">
-  <img src="images/funcionamiento.gif" alt="Architecture Block Diagram" width="90%">
+  <img src="images/Diagrama de Arquitectura (Bloques).jpeg" alt="Architecture Block Diagram" width="90%">
 </p>
 
 The system implements a dual-channel video pipeline:
