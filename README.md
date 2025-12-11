@@ -15,8 +15,33 @@ First, we designed a flow diagram to serve as a step-by-step guide for developin
 
 ![Flow Diagram](image.png)
 
-Initially, we boot an embedded Linux image with the necessary files from the mentioned repositories. Once the system is running, the software pipeline follows the architecture below.
+## Booting Process and files preparation
 
+Initially, we boot an embedded Linux image with the necessary files:
+
+- **sample/cvi_tdl/sample_vi_od.c**:
+  This is the core source code for Object Detection. It implements a callback function "SampleOD" using a **multithreaded architecture** to parallelize processing and balance the workload between the CPU and the NPU.
+
+  The file structure is organized into three key components:
+
+  1.  **Threading Logic:**
+      * **Inference Thread:** Pulls frames from the secondary channel (`VPSS_CHN1`) and executes the NPU inference.
+      * **Encoding Thread:** Pulls frames from the main channel (`VPSS_CHN0`), retrieves metadata from the inference thread, draws bounding boxes/labels, and pushes the frame to the RTSP server.
+
+  2.  **Video Middleware Configuration (`get_middleware_config`):**
+      * **VI (Video Input):** Captures raw sensor data (settings loaded from `sensor_cfg.ini`).
+      * **VB (Video Buffer Pools):** Allocates 3 DMA memory pools:
+          * Pool 1: Native Sensor Resolution.
+          * Pool 2: AI Input (Resized).
+          * Pool 3: AI Pre-processing (RGB Planar).
+      * **VPSS (Video Process Sub-System):** Sets up a "Dual" mode group (`Grp0`) splitting the signal:
+          * `CHN0`: 1920x1080 (Visualization/RTSP).
+          * `CHN1`: 1920x1080 (AI Model Input).
+
+  3.  **TDL SDK Integration:**
+      * **Supported Models:** MobileDetV2 (person, vehicle, pets, coco80), YOLOv3, and YOLOX.
+      * **Filtering:** Hardcoded to filter for **PERSONS** (`CVI_TDL_DET_TYPE_PERSON`) in this sample.
+      * **Threshold:** Configurable via command-line argument (default: 0.5).
 ## 1. Hardware Input
 
 The entry point is the **GC4653** sensor. The system begins by parsing the `sensor_cfg.ini` file to dynamically determine the sensor's resolution capabilities.
