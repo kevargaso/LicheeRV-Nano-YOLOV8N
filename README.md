@@ -32,6 +32,22 @@ Before processing any video, we initialize the **Video Buffer (VB) Pools**. This
 * **Pool TDL:** Reserved for the AI input (downscaled to 640x480).
 * **Pool PREPROC:** A specific RGB buffer for the algorithm preprocessing.
 
+## 2.1 Runtime & Model Initialization (TDL)
+
+With the memory pools ready, the next stage is initializing the TDL runtime and loading the YOLOv8 model.  
+This process relies on the Cvitek AI framework, which requires the model to be converted into the `.cvimodel` format beforehand.
+
+During initialization, the following operations occur:
+
+- The TDL engine allocates internal NPU memory for weights, intermediate tensors, and output layers.
+- A preprocessing module is enabled to convert incoming NV21 frames into RGB planar format, since the NPU cannot operate directly on NV21.
+- The model input dimensions (640×480) are validated to match the VPSS Channel 1 output.
+
+This initialization ensures that all inference operations run entirely inside the dedicated hardware NPU, avoiding unnecessary CPU usage and guaranteeing real-time performance on the SG2002-based LicheeRV Nano.
+
+
+
+
 ## 3. Video Processing (VPSS)
 
 The core signal processing happens in the **VPSS (Video Process Sub-System)**. We configure **Group 0** to act as a splitter and scaler, generating two simultaneous streams from the single camera input:
