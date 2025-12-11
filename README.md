@@ -111,7 +111,7 @@ This thread handles the visual output. It pulls the high-res frame from VPSS Cha
 2.  **Encode:** The modified frame is sent to the VENC hardware to be compressed into **H.264**.
 3.  **Buffer:** The resulting bitstream is stored in a Ring Buffer in RAM, ready for distribution.
 
-4.1 Person Detection, Tracking & People Counting
+### 4.1 Person Detection, Tracking & People Counting
 This module adds the logic that transforms raw YOLO detections into stable tracked IDs and a real-time people counter.  
 It runs in parallel with the inference thread and shares metadata with the encoder thread.
 
@@ -173,3 +173,12 @@ Finally, a **CivetWeb** server runs on port 8080 to distribute the content. It e
 * `/stream`: Provides a raw H.264 stream, ideal for desktop players like VLC or FFplay.
 * `/mse_stream`: Wraps the H.264 packets into **fragmented MP4 (fMP4)** containers. This allows modern web browsers to play the low-latency stream directly using Media Source Extensions (MSE) without needing external plugins.
 * `/`: Serves a web interface with JavaScript controls to view the camera and tracking statistics.
+
+## 6. User Interface Preview
+Below is a screenshot of the real-time web interface served by the CivetWeb server.  
+This UI displays the live camera feed (fMP4 via MSE), the bounding boxes, tracking IDs, and the real-time people counter.
+
+<p align="center">
+  <img src="imagen/interface.png" alt="Interface Preview" width="85%">
+</p>
+
