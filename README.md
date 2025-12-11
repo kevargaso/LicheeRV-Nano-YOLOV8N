@@ -179,6 +179,6 @@ Below is a screenshot of the real-time web interface served by the CivetWeb serv
 This UI displays the live camera feed (fMP4 via MSE), the bounding boxes, tracking IDs, and the real-time people counter.
 
 <p align="center">
-  <img src="imagen/interface.png" alt="Interface Preview" width="85%">
+  <img src="images/interface.png" alt="Interface Preview" width="85%">
 </p>
 
