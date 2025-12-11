@@ -111,6 +111,61 @@ This thread handles the visual output. It pulls the high-res frame from VPSS Cha
 2.  **Encode:** The modified frame is sent to the VENC hardware to be compressed into **H.264**.
 3.  **Buffer:** The resulting bitstream is stored in a Ring Buffer in RAM, ready for distribution.
 
+4.1 Person Detection, Tracking & People Counting
+This module adds the logic that transforms raw YOLO detections into stable tracked IDs and a real-time people counter.  
+It runs in parallel with the inference thread and shares metadata with the encoder thread.
+
+### 4.1.1 Person Recognition (YOLOv8 on NPU)
+Each frame from VPSS Channel 1 (640×480) is sent to the TDL engine running the YOLOv8 `.cvimodel`.  
+The model outputs multiple detected objects, but this application filters only the class:
+
+- **PERSON (CVI_TDL_DET_TYPE_PERSON)**
+
+For each detection, the model returns:
+
+- Bounding Box (x, y, width, height)
+- Confidence score
+- Class ID
+- Timestamp
+
+Bounding boxes are later rescaled to match the 1920×1080 image from VPSS Channel 0.
+
+### 4.1.2 Tracking Logic (ID Assignment)
+YOLOv8 does not provide tracking IDs, so software logic assigns identities between frames:
+
+1. The system stores the detections from the previous frame.
+2. For every new bounding box, it calculates:
+   - IoU (Intersection over Union)  
+   - Centroid distance  
+3. If the new box matches a previous one → **same ID**.
+4. If it does not match any → **new unique ID is created**.
+5. IDs without updates for several frames are removed.
+
+This produces stable tracking even if several people enter or leave the scene.
+
+### 4.1.3 People Counting
+The counting mechanism is based on **new unique IDs**:
+
+- When a new person ID is created → **counter = counter + 1**
+- People are not double-counted as long as their ID stays active
+- If someone exits and re-enters, they get a new ID (simple counting mode)
+
+This method is reliable for entrances, hallways, and areas with linear flow.
+
+### 4.1.4 Metadata Sharing (Thread-Safe)
+The tracking module updates a shared metadata structure protected by a Mutex that includes:
+
+- Active person IDs
+- Bounding boxes for drawing
+- Total number of detected persons
+- Last update timestamp
+
+This metadata is consumed by:
+
+- The **encoding thread** (to draw boxes and labels on the NV21 frame)
+- The **HTTP/MSE server** (to expose live analytics)
+
+
 ## 5. HTTP Server (CivetWeb)
 
 Finally, a **CivetWeb** server runs on port 8080 to distribute the content. It exposes specific endpoints mapped to the Ring Buffer:
