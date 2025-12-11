@@ -555,7 +555,7 @@ void draw_box_nv21(VIDEO_FRAME_INFO_S *frame,
 | **VENC Encoding Time** | 10-15ms | H.264 @ 1080p |
 | **Encoder Frame Rate** | 30 FPS | Locked to sensor rate |
 | **Inference Frame Rate** | 25-28 FPS | Limited by NPU processing |
-| **CPU Usage** | 15-20% | Both threads combined |
+| **CPU Usage** | 40-50% | Both threads combined |
 | **NPU Utilization** | 60-80% | During continuous inference |
 | **Total RAM Usage** | ~80 MB | VB pools + application heap |
 | **HTTP Bitrate** | 1.8-2.5 Mbps | Variable bitrate (VBR) |
